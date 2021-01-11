@@ -14,6 +14,15 @@ interface UserId {
   userId: string | number;
 }
 
+interface UserFilter {
+  currentPage: number;
+  pageSize: number;
+  phone: string;
+  startCreateTime: string;
+  endCreateTime: string;
+  rangeDate: Array<string>[];
+}
+
 export const login = (data: User) => request({
   method: 'POST',
   url: '/front/user/login',
@@ -25,7 +34,7 @@ export const getUserInfo = () => request({
   url: '/front/user/getInfo',
 });
 
-export const getUserPages = (data: object) => request({
+export const getUserPages = (data: UserFilter) => request({
   method: 'POST',
   url: '/boss/user/getUserPages',
   data,
