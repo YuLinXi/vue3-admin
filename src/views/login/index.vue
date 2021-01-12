@@ -89,7 +89,7 @@ function useLogin() {
   name: 'Login',
 })
 export default class Login extends Vue {
-  private login = setup(useLogin)
+  login = setup(useLogin)
 }
 </script>
 

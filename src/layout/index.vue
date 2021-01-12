@@ -1,13 +1,53 @@
 <template>
-  <div></div>
+  <el-container>
+    <el-aside width="200px">
+      <app-aside />
+    </el-aside>
+    <el-container>
+      <el-header>Header</el-header>
+      <el-main>
+        <router-view />
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { Options, setup, Vue } from 'vue-class-component';
+import AppAside from './components/AppAside.vue';
+
+@Options({
   name: 'Layout',
-};
+  components: {
+    AppAside,
+  },
+})
+export default class Layout extends Vue {
+
+}
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.el-container {
+  min-height: 100vh;
+}
 
+.el-aside {
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  background: #d3dce6;
+  width: 200px;
+}
+
+.el-header {
+  background: #f8f9fb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.el-main {
+  background: #e9eef3;
+}
 </style>
