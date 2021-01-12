@@ -3,23 +3,23 @@
     <el-form
       class="login-form"
       label-position="top"
-      ref="form"
-      :model="formData"
-      :rules="rules"
+      :ref="(form) => login.formRef = form"
+      :model="login.formData"
+      :rules="login.rules"
       label-width="80px"
     >
       <el-form-item label="手机号" prop="phone">
-        <el-input v-model="formData.phone"></el-input>
+        <el-input v-model="login.formData.phone"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input type="password" v-model="formData.password"></el-input>
+        <el-input type="password" v-model="login.formData.password"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button
           class="login-btn"
           type="primary"
-          :loading="isLoginLoading"
-          @click="handleSubmit"
+          :loading="login.isLoginLoading"
+          @click="login.handleSubmit"
         >
           登录
         </el-button>
@@ -29,50 +29,67 @@
 </template>
 
 <script lang="ts">
-import { ElForm } from 'element-plus';
-import { Options, Vue } from 'vue-class-component';
-import { forbidUser, login } from '@/services/user';
+import {
+  reactive,
+  toRefs,
+  ref,
+} from 'vue';
+import { useStore } from 'vuex';
+import { Vue, setup, Options } from 'vue-class-component';
+import { login } from '@/services/user';
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
 
-@Options({
-  components: {
-  },
-})
-export default class Login extends Vue {
-  isLoginLoading = false
-
-  formData = {
-    phone: '',
-    password: '',
-  }
-
-  $refs!: {
-    form: typeof ElForm;
-  }
-
-  rules = {
+function useLogin() {
+  const rules = {
     phone: [
-      { required: true, message: '请输入手机号', trigger: 'blur' },
-      { pattern: /^1\d{10}$/, message: '请输入正确的手机号', trigger: 'blur' },
+      { required: true, message: '请输入手机号' },
+      { pattern: /^1\d{10}$/, message: '请输入正确的手机号' },
     ],
     password: [
-      { required: true, message: '请输入密码', trigger: 'blur' },
-      {
-        min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur',
-      },
+      { required: true, message: '请输入密码' },
+      { min: 6, max: 18, message: '长度在 6 到 18 个字符' },
     ],
-  }
-
-  async handleSubmit(): Promise<void> {
+  };
+  const formRef = ref();
+  const store = useStore();
+  const router = useRouter();
+  const route = useRoute();
+  const state = reactive({
+    isLoginLoading: false,
+    formData: {
+      phone: '',
+      password: '',
+    },
+  });
+  const handleSubmit = async (): Promise<void> => {
     try {
-      await this.$refs.form.validate();
-      this.isLoginLoading = true;
-      const { data } = await login(this.formData);
+      await formRef.value.validate();
+      state.isLoginLoading = true;
+      const { data } = await login(state.formData);
+      store.commit('setUser', data);
+      ElMessage.success('登录成功');
+      router.push(route.query.redirect as string || '/');
     } catch (err) {
       //
     } finally {
-      this.isLoginLoading = false;
+      state.isLoginLoading = false;
     }
-  }
+  };
+
+  return {
+    ...toRefs(state),
+    handleSubmit,
+    rules,
+    formRef,
+  };
+}
+
+@Options({
+  name: 'Login',
+})
+export default class Login extends Vue {
+  private login = setup(useLogin)
 }
 </script>
 

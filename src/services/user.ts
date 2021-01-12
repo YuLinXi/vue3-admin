@@ -4,24 +4,7 @@
 
 import request from '@/utils/request';
 import qs from 'qs';
-
-interface User {
-  phone: string;
-  password: string;
-}
-
-interface UserId {
-  userId: string | number;
-}
-
-interface UserFilter {
-  currentPage: number;
-  pageSize: number;
-  phone: string;
-  startCreateTime: string;
-  endCreateTime: string;
-  rangeDate: Array<string>[];
-}
+import type { User, UserFilter, UserId } from './user.d';
 
 export const login = (data: User) => request({
   method: 'POST',
