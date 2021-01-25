@@ -13,6 +13,10 @@ module.exports = {
         target: 'http://edufront.lagou.com',
         changeOrigin: true,
       },
+      '/boss': {
+        target: 'http://eduboss.lagou.com/',
+        changeOrigin: true,
+      },
     },
   },
 };

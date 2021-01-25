@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import store from '@/store';
+import { store } from '@/store';
 import { ElMessage } from 'element-plus';
 import router from '@/router';
 import qs from 'qs';
@@ -44,38 +44,41 @@ let isRefreshing = false;
 let requests: any[] = [];
 request.interceptors.response.use((response) => {
   const { state, message, content } = response.data;
-  if (state === 401) {
-    // 刷新 token
-    if (!store.state.user) {
-      redirectLogin();
-      return Promise.reject(response.data);
-    }
-    if (!isRefreshing) {
-      isRefreshing = true;
-      return refreshToken().then((res) => {
-        if (!res.data.success) {
-          throw new Error('刷新 Token 失败');
-        }
-        store.commit('setUser', res.data.content);
-        requests.forEach((cb) => cb());
-        requests = [];
-        return request(response.config);
-      }).catch((err) => {
-        ElMessage.warning('登录已过期，请重新登录');
-        store.commit('setUser', null);
-        redirectLogin();
-        return Promise.reject(response.data);
-      }).finally(() => {
-        isRefreshing = false;
-      });
-    }
-  } else if (state !== 1) {
-    ElMessage.error(message);
-    return Promise.reject(response.data);
-  }
   return { data: content, code: state, msg: message } as never;
 },
-async (error) => Promise.reject(error));
+async (error) => {
+  if (error.response) {
+    const { status } = error.response;
+    if (status === 400) {
+      ElMessage.error('请求参数错误');
+    } else if (status === 401) {
+      if (!store.state.user) {
+        redirectLogin();
+        return Promise.reject(error);
+      }
+      if (!isRefreshing) {
+        isRefreshing = true;
+        return refreshToken().then((res) => {
+          if (!res.data.success) {
+            throw new Error('刷新 Token 失败');
+          }
+          store.commit('setUser', res.data.content);
+          requests.forEach((cb) => cb());
+          requests = [];
+          return request(error.config);
+        }).catch((err) => {
+          ElMessage.warning('登录已过期，请重新登录');
+          store.commit('setUser', null);
+          redirectLogin();
+          return Promise.reject(error.data);
+        }).finally(() => {
+          isRefreshing = false;
+        });
+      }
+    }
+  }
+  return Promise.reject(error);
+});
 
 export default function (payload: AxiosRequestConfig) {
   const {

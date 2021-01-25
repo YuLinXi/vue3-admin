@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-aside width="200px">
-      <app-aside />
+      <app-aside ref="aside" />
     </el-aside>
     <el-container>
       <el-header>Header</el-header>
@@ -13,8 +13,18 @@
 </template>
 
 <script lang="ts">
-import { Options, setup, Vue } from 'vue-class-component';
+import { onBeforeMount } from 'vue';
+import { Options, Vue, setup } from 'vue-class-component';
+import { iUseStore } from '@/store';
 import AppAside from './components/AppAside.vue';
+
+const useInitData = () => {
+  const store = iUseStore();
+  onBeforeMount(() => {
+    store.dispatch('getUserPermissions');
+  });
+  return {};
+};
 
 @Options({
   name: 'Layout',
@@ -23,7 +33,7 @@ import AppAside from './components/AppAside.vue';
   },
 })
 export default class Layout extends Vue {
-
+  context = setup(useInitData)
 }
 </script>
 

@@ -28,3 +28,8 @@ export const forbidUser = (data: UserId) => request({
   url: '/boss/user/forbidUser',
   data,
 });
+
+export const getPermissions = () => request({
+  method: 'GET',
+  url: '/boss/permission/getUserPermissions',
+});

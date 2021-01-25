@@ -6,8 +6,8 @@
     <el-menu
       default-active="2"
       class="aside-menu"
-      @open="handleOpen"
-      @close="handleClose"
+      @open="context.handleOpen"
+      @close="context.handleClose"
     >
       <el-submenu index="1">
         <template #title>
@@ -44,19 +44,31 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { computed } from 'vue';
+import { Options, Vue, setup } from 'vue-class-component';
+import { iUseStore } from '@/store';
+
+function useAppAside() {
+  const store = iUseStore();
+  const permissions = computed(() => store.state.permissions);
+  const handleOpen = () => {
+    console.log(permissions);
+  };
+  const handleClose = () => {
+    console.log(122);
+  };
+  return {
+    handleClose,
+    handleOpen,
+    permissions,
+  };
+}
 
 @Options({
   name: 'AppAside',
 })
 export default class AppAside extends Vue {
-  static handleOpen(key: string, keyPath: string): void {
-    console.log(this.key, keyPath);
-  }
-
-  static handleClose(key: string, keyPath: string): void {
-    console.log(key, keyPath);
-  }
+  context = setup(useAppAside)
 }
 
 </script>

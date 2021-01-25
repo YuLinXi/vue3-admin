@@ -34,7 +34,7 @@ import {
   toRefs,
   ref,
 } from 'vue';
-import { useStore } from 'vuex';
+import { iUseStore } from '@/store';
 import { Vue, setup, Options } from 'vue-class-component';
 import { login } from '@/services/user';
 import { useRouter, useRoute } from 'vue-router';
@@ -52,7 +52,7 @@ function useLogin() {
     ],
   };
   const formRef = ref();
-  const store = useStore();
+  const store = iUseStore();
   const router = useRouter();
   const route = useRoute();
   const state = reactive({
@@ -71,6 +71,7 @@ function useLogin() {
       ElMessage.success('登录成功');
       router.push(route.query.redirect as string || '/');
     } catch (err) {
+      console.log(err);
       //
     } finally {
       state.isLoginLoading = false;
